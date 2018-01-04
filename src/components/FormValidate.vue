@@ -1,11 +1,11 @@
 <template>
   <div class="formbox">
-    <canvas height="620" width="1300" id="canvas" style="position: absolute; height: 100%;"></canvas>
+    <canvas height="620" width="1360" id="canvas" style="position: absolute; height: 100%;"></canvas>
     <div class="formbox-con">
       <Card :bordered="false">
         <p slot="title">
           <Icon type="log-in"></Icon>
-            欢迎登录
+            表单验证
         </p>
         <div class="form-con">
           <Form ref="loginForm" :model="formData" :rules="rules">
@@ -22,13 +22,13 @@
                <Input type="password" v-model="formData.password" placeholder="请输入密码"></Input>
             </FormItem>
             <FormItem prop="password2" label="确认密码">
-               <Input type="password2" v-model="formData.password2" placeholder="请输入密码"></Input>
+               <Input type="password" v-model="formData.password2" placeholder="请输入密码"></Input>
             </FormItem>
             <FormItem prop="gender" label="性别">
-              <Radio-group v-model="formData.gender">
-                <Radio value="male">男</Radio>
-                <Radio value="female">女</Radio>
-              </Radio-group>
+              <RadioGroup v-model="formData.gender">
+                <Radio label="male">Male</Radio>
+                <Radio label="female">Female</Radio>
+            </RadioGroup>
             </FormItem>
             <FormItem prop="interest" label="爱好">
               <Checkbox-group v-model="formData.interest">
@@ -57,21 +57,21 @@ export default {
   data () {
     const userNameValidate = (rule, value, callback) => {
       if(value){
-        callback(new Error(value))
+        callback(value)
       }else{
         callback()
       }
     }
     , passwordValidate = (rule, value, callback) => {
       if(value){
-        callback(new Error(value))
+        callback(this.validateNewPassword2())
       }else{
         callback()
       }
     }
     , phoneNumberValidate = (rule, value, callback) => {
       if(value){
-        callback(new Error(value))
+        callback(value)
       }else{
         callback()
       }
@@ -105,33 +105,42 @@ export default {
         ],
         phoneNumber: [
           { required: true, message: '请输入手机号', trigger: 'blur' },
-          { type: 'number', len: 11,  message: '请输入正确的手机号', trigger: 'change' },
-          { validator: phoneNumberValidate, trigger: 'blur'}
+          //{ type: 'number', len: 11, message: '请输入正确的手机号', trigger: 'change' },
+          { len: 11, message: '请输入正确的手机号', trigger: 'blur' },
+          //{ validator: phoneNumberValidate, trigger: 'blur'}
         ],
         password: [
           { required: true, message: '密码不能为空', trigger: 'blur' },
           { min: 6, max: 20, message: '密码应为6-20位数字，字母的组合', trigger: 'change' },
-          { validator: passwordValidate, trigger: 'blur'}
+          { min: 6, max: 20, message: '密码应为6-20位数字，字母的组合', trigger: 'blur' }
         ],
         password2: [
           { required: true, message: '请再次输入密码', trigger: 'blur' },
-          { validator: passwordValidate, trigger: 'blur'}
+          { validator: passwordValidate, trigger: 'change'}
         ]
       },
     }
   },
   mounted() {
     loginBG._main_()
+    console.log(this)
   },
   methods: {
     handleSubmit () {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
-          console.log('submit')
+          console.log('validate success')
         }else{
-          console.log(valid)
+          console.log('valid faild')
         }
       })
+    },
+    validateNewPassword2() {
+      if(this.formData.password === this.formData.password2){
+        return this.formData.password2
+      }else{
+        return '两次密码输入不一致'
+      }
     }
   }
 }
